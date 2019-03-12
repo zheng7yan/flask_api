@@ -44,3 +44,35 @@ def predict_demo():
     responses.status_code = 200
 
     return responses
+
+
+@predict.route('/heat', methods=['POST'], endpoint='predict_heat')
+def predict_heat():
+    try:
+        test_json = str(request.data, encoding='utf-8')
+        test = pd.read_json(test_json, orient='records')
+        loan_ids = test['id']
+    except Exception as e:
+        abort(400)
+
+    if test.empty:
+        abort(400)
+
+    filename = model_dict.get('heat', '')
+    if not filename:
+        abort(500)
+
+    loaded_model = None
+    with open('flask_api/models/models/' + filename, 'rb') as f:  # Load the saved model
+        loaded_model = pickle.load(f)
+
+    predictions = loaded_model.predict(test)
+
+    prediction_series = list(pd.Series(predictions))
+
+    final_predictions = pd.DataFrame(list(zip(loan_ids, prediction_series)))
+
+    responses = jsonify(predictions=final_predictions.to_json(orient="records"))
+    responses.status_code = 200
+
+    return responses

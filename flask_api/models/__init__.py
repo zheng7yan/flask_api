@@ -1,3 +1,4 @@
 model_dict = {
-    'demo': 'demo.pk'
+    'demo': 'demo.pk',
+    'heat': 'heat.pk'
 }
